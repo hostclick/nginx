@@ -1,0 +1,19 @@
+- name: Create the directory for ssl certificates
+  file: path=/etc/nginx/certs state=directory owner=root group={{nginx_group}} mode=0755
+  notify: 
+   - restart nginx
+  tags: [nginx]
+
+- name: Copy ssl key
+  copy: src={{ item.key }} dest=/etc/nginx/certs/ mode=0400
+  with_items: nginx_ssl_certificates
+  notify: 
+   - restart nginx
+  tags: [nginx]
+  
+- name: Copy ssl chain
+  copy: src={{ item.chain }} dest=/etc/nginx/certs/
+  with_items: nginx_ssl_certificates
+  notify: 
+   - restart nginx
+  tags: [nginx]

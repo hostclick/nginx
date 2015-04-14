@@ -1,0 +1,65 @@
+---
+# For Docker containers
+#nginx_daemon: off
+
+nginx_user: "{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}"
+nginx_group: "{{nginx_user}}"
+
+nginx_worker_processes: "{{ (ansible_processor_vcpus - 1) }}"
+
+# The avereage amount of users served per second should be equal to worker_processes * worker_connections / (keepalive_timeout * 2)
+# browsers open 2 connections by default
+# 64k TCP sockets (32k if using proxy) * keepalive_timeout / nginx_worker_processes
+nginx_max_clients: 10000
+
+# 2 * nginx_max_clients, one for client connection and one for the file being served. One extra if using proxy.
+nginx_worker_rlimit_nofile: 30000
+nginx_multi_accept: "on"
+nginx_connection_processing_method: epoll
+
+#Installs the clear cache script
+#nginx_cache_directory: /tmp/cache
+#nginx_custom_scripts:
+#  - nginx_clear_cache.sh
+
+nginx_static_content_sites: none
+
+nginx_http_params:
+    - sendfile on
+    - access_log off
+    - error_log  /var/log/nginx/error.log warn
+    - server_tokens off
+    - keepalive_timeout 5
+    - tcp_nopush on
+    - open_file_cache max=20000 inactive=20s
+    - open_file_cache_valid 30s
+    - open_file_cache_min_uses 2
+    - open_file_cache_errors on
+    - client_max_body_size 32M
+    - client_body_buffer_size 32M
+    - fastcgi_buffers 256 16k
+    - fastcgi_max_temp_file_size 0
+
+nginx_default_site:
+    default:
+      - listen 80
+      - server_name localhost
+      - location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm; }
+      - error_page   500 502 503 504  /50x.html
+      - location = /50x.html {
+        root   /usr/share/nginx/html; }
+
+nginx_sites:
+  default:
+     - listen 80
+     - server_name _
+     - root "/usr/share/nginx/html"
+     - index index.html
+
+nginx_configs: {}
+
+nginx_auth_basic_files: {}
+
+nginx_ssl_certificates: none

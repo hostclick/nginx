@@ -1,0 +1,28 @@
+#{{ ansible_managed }}
+{% if nginx_daemon is defined and nginx_daemon == 'off' %}
+daemon {{ nginx_daemon }};
+{% endif %}
+user              {{ nginx_user }};
+
+worker_processes  {{ nginx_worker_processes }};
+pid        /var/run/nginx.pid;
+worker_rlimit_nofile {{ nginx_worker_rlimit_nofile }};
+
+events {
+    worker_connections  {{ nginx_max_clients }};
+	multi_accept {{ nginx_multi_accept }};
+	use {{ nginx_connection_processing_method }};
+}
+
+
+http {
+
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+{% for v in nginx_http_params %}
+        {{ v }};
+{% endfor %}
+
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;
+}

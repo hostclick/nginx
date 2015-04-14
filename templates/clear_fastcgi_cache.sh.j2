@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#stop on errors
+set -e
+
+lockfile=/var/lock/subsys/clear_fastcgi_cache
+
+if [ ! -e $lockfile ]; then
+   trap "rm -f $lockfile; exit" INT TERM EXIT
+   touch $lockfile
+   rm -rf {{ nginx_cache_directory }}/*
+   rm $lockfile
+   trap - INT TERM EXIT
+else
+   echo "Nginx clear cache is already running"
+fi
