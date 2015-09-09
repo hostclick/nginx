@@ -1,7 +1,4 @@
 ---
-- action: setup
-  tags: [nginx]
-
 - name: Copy the nginx packages
   copy: src=nginx.repo dest=/etc/yum.repos.d/
   tags: [nginx]

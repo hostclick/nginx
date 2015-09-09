@@ -10,7 +10,7 @@
   notify: 
    - restart nginx
   tags: [nginx]
-  
+
 - name: Copy ssl chain
   copy: src={{ item.chain }} dest=/etc/nginx/certs/
   with_items: nginx_ssl_certificates
